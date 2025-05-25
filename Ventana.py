@@ -46,8 +46,7 @@ while corriendo:
             x, y = evento.pos
             fila = y // TAM_CASILLA
             columna = x // TAM_CASILLA
-            tablero.alternar_boton(fila, columna)
-            print(tablero.Id_cuadro(fila, columna))
+            
     
     # Dibujar los botones
     for fila in range(FILAS):
