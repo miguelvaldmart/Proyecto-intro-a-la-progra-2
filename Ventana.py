@@ -66,11 +66,9 @@ class Ventana:
                             print("iguales")
                         else:
                             print("diferentes")
-                            for i in range(len(self.tablero.get_respuesta())):
-                                print("x")
-                                for j in range(len(self.tablero.get_respuesta()[0])):
-                                    if self.tablero.get_respuesta()[i][j] in self.seleccionados and self.tablero.esta_revelado(i, j):
-                                        self.tablero.alternar_boton(fila, columna)
+                            self.tablero.alternar_boton(self.cordenadas_seleccionados[0][0],self.cordenadas_seleccionados[0][1])
+                            self.tablero.alternar_boton(self.cordenadas_seleccionados[1][0],self.cordenadas_seleccionados[1][1])
+                        self.cordenadas_seleccionados = []
                         self.seleccionados = []
 
     def verifica_seleccionados(self):
