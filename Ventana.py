@@ -1,71 +1,94 @@
 import pygame
 import sys
-from Logica import Tablero
+from Logica import Tablero, Boton
 
-#Este archivo se encarga de la parte grafica, donde se muestra un tablero de 6x6 cuadrados, que pueden variar entre gris o verde si se tocan
-# Inicialización
-pygame.init()
+class Ventana:
+    def __init__(self, ancho, alto, filas, columnas):
+        pygame.init()
 
-# Configuración
-ANCHO, ALTO = 600, 600
-FILAS, COLUMNAS = 6, 6
-TAM_CASILLA = ANCHO // COLUMNAS
+        self.ANCHO = ancho
+        self.ALTO = alto
+        self.FILAS = filas
+        self.COLUMNAS = columnas
+        self.TAM_CASILLA = ancho // columnas
 
-# Colores
-BLANCO = (255, 255, 255)
-GRIS = (180, 180, 180)
-VERDE = (0, 200, 0)
-AZUL = (50, 50, 255)
+        # Colores
+        self.BLANCO = (255, 255, 255)
+        self.GRIS = (180, 180, 180)
+        self.VERDE = (0, 200, 0)
+        self.AZUL = (50, 50, 255)
 
-# Ventana
-pantalla = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Juego de Lógica")
+        # Ventana
+        self.pantalla = pygame.display.set_mode((ancho, alto))
+        pygame.display.set_caption("Juego de Lógica")
 
-# Crear tablero lógico
-tablero = Tablero(FILAS, COLUMNAS)
+        # Lógica
+        self.tablero = Tablero(self.FILAS, self.COLUMNAS)
+        self.rectangulos = self.crear_rectangulos()
+        self.clock = pygame.time.Clock()
+        self.seleccionados = []
 
-# Crear rectángulos de cada celda
-rectangulos = []
-for fila in range(FILAS):
-    fila_rectangulos = []
-    for columna in range(COLUMNAS):
-        rect = pygame.Rect(columna * TAM_CASILLA, fila * TAM_CASILLA, TAM_CASILLA, TAM_CASILLA)
-        fila_rectangulos.append(rect)
-    rectangulos.append(fila_rectangulos)
+    def crear_rectangulos(self):
+        rectangulos = []
+        for fila in range(self.FILAS):
+            fila_rect = []
+            for columna in range(self.COLUMNAS):
+                rect = pygame.Rect(
+                    columna * self.TAM_CASILLA,
+                    fila * self.TAM_CASILLA,
+                    self.TAM_CASILLA,
+                    self.TAM_CASILLA
+                )
+                fila_rect.append(rect)
+            rectangulos.append(fila_rect)
+        return rectangulos
 
-# Bucle principal
-clock = pygame.time.Clock()
-corriendo = True
-seleccionados = []
-while corriendo:
-    pantalla.fill(BLANCO)
+    def manejar_eventos(self):
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                return False
+            elif evento.type == pygame.MOUSEBUTTONDOWN:
+                x, y = evento.pos
+                fila = y // self.TAM_CASILLA
+                columna = x // self.TAM_CASILLA
+                self.tablero.alternar_boton(fila, columna)
 
-    for evento in pygame.event.get():
-        if evento.type == pygame.QUIT:
-            corriendo = False
-        elif evento.type == pygame.MOUSEBUTTONDOWN:
-            x, y = evento.pos
-            fila = y // TAM_CASILLA
-            columna = x // TAM_CASILLA
-            tablero.alternar_boton(fila, columna)
-            seleccionados += [tablero.Id_cuadro(fila,columna)]
-            if len(seleccionados) == 2:
-                if seleccionados[0] == seleccionados[1]:
-                    print("iguales")
-                    seleccionados = []
-                else:
-                    print("diferentes")
-                    seleccionados = []
-            
-    
-    # Dibujar los botones
-    for fila in range(FILAS):
-        for columna in range(COLUMNAS):
-            color = VERDE if tablero.esta_activo(fila, columna) else GRIS
-            pygame.draw.rect(pantalla, color, rectangulos[fila][columna])
-            pygame.draw.rect(pantalla, AZUL, rectangulos[fila][columna], 2)
+                if self.tablero.esta_activo(fila, columna):
+                    self.seleccionados.append(self.tablero.Id_cuadro(fila, columna))
 
-    pygame.display.flip()
-    clock.tick(60)
-pygame.quit()
-sys.exit()
+                if len(self.seleccionados) == 2:
+                    if self.seleccionados[0] == self.seleccionados[1]:
+                        print("iguales")
+                    else:
+                        print("diferentes")
+                        for i in range(len(self.tablero.get_respuesta())):
+                            for j in range(len(self.tablero.get_respuesta()[0])):
+                                if (self.tablero.get_respuesta()[i][j] in self.seleccionados and 
+                                        not self.tablero.esta_activo(i, j)):
+                                    self.tablero.alternar_boton(fila, columna)
+                    self.seleccionados = []
+                
+        return True
+
+    def dibujar(self):
+        self.pantalla.fill(self.BLANCO)
+        for fila in range(self.FILAS):
+            for columna in range(self.COLUMNAS):
+                color = self.VERDE if self.tablero.esta_activo(fila, columna) else self.GRIS
+                pygame.draw.rect(self.pantalla, color, self.rectangulos[fila][columna])
+                pygame.draw.rect(self.pantalla, self.AZUL, self.rectangulos[fila][columna], 2)
+        pygame.display.flip()
+
+    def ejecutar(self):
+        corriendo = True
+        while corriendo:
+            corriendo = self.manejar_eventos()
+            self.dibujar()
+            self.clock.tick(60)
+        pygame.quit()
+        sys.exit()
+
+# Para ejecutar el juego:
+if __name__ == "__main__":
+    juego = Ventana(600,600,6,6)
+    juego.ejecutar()

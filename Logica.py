@@ -20,7 +20,7 @@ class Tablero:
         self.botones = []  #Matriz para saber si el boton fue presionado o no, para cambiar su color
         self.respuesta = self.crea_juego(filas,columnas)
         self.revelado = [[False for _ in range(columnas)] for _ in range(filas)] #Crea un matriz de Falses del tamaño del tablero (6x6) donde cada false representa un cuadrado
-        print(self.respuesta)                                                    #Esta matriz es para saber si el numero dek cuadrado esta siendo mostrado en pantalla o no
+        print(self.respuesta)                                                    #Esta matriz es para saber si el numero del cuadrado esta siendo mostrado en pantalla o no
         for fila in range(filas): #Aqui se crea la matriz de self.botones
             fila_actual = []  # Lista para esta fila
             for columna in range(columnas):
@@ -67,4 +67,3 @@ class Tablero:
 
     def Id_cuadro (self, fila, columna):
         return self.respuesta[fila][columna]
-    
