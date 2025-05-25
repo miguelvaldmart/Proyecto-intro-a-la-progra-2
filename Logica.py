@@ -68,10 +68,3 @@ class Tablero:
     def Id_cuadro (self, fila, columna):
         return self.respuesta[fila][columna]
     
-    def revelados (self):
-        for i in range(len(self.respuesta)):
-            for j in range(len(self.respuesta[0])):
-                if self.esta_revelado[i][j]:
-                    return self.respuesta[i][j]
-                else:
-                    return

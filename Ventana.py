@@ -36,6 +36,7 @@ for fila in range(FILAS):
 # Bucle principal
 clock = pygame.time.Clock()
 corriendo = True
+seleccionados = []
 while corriendo:
     pantalla.fill(BLANCO)
 
@@ -46,6 +47,15 @@ while corriendo:
             x, y = evento.pos
             fila = y // TAM_CASILLA
             columna = x // TAM_CASILLA
+            tablero.alternar_boton(fila, columna)
+            seleccionados += [tablero.Id_cuadro(fila,columna)]
+            if len(seleccionados) == 2:
+                if seleccionados[0] == seleccionados[1]:
+                    print("iguales")
+                    seleccionados = []
+                else:
+                    print("diferentes")
+                    seleccionados = []
             
     
     # Dibujar los botones
