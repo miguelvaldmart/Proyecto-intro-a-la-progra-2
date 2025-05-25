@@ -1,6 +1,6 @@
 import pygame
 import sys
-from Logica import Tablero, Boton
+from Logica import Tablero
 
 class Ventana:
     def __init__(self, ancho, alto, filas, columnas):
@@ -27,6 +27,8 @@ class Ventana:
         self.rectangulos = self.crear_rectangulos()
         self.clock = pygame.time.Clock()
         self.seleccionados = []
+        self.cordenadas_seleccionados = []
+        self.corriendo = True
 
     def crear_rectangulos(self):
         rectangulos = []
@@ -46,7 +48,7 @@ class Ventana:
     def manejar_eventos(self):
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
-                return False
+                self.corriendo = False
             elif evento.type == pygame.MOUSEBUTTONDOWN:
                 x, y = evento.pos
                 fila = y // self.TAM_CASILLA
@@ -55,20 +57,28 @@ class Ventana:
 
                 if self.tablero.esta_activo(fila, columna):
                     self.seleccionados.append(self.tablero.Id_cuadro(fila, columna))
+                    self.cordenadas_seleccionados.append((fila,columna))
+                if len(self.cordenadas_seleccionados) == 2 and self.cordenadas_seleccionados[0] == self.cordenadas_seleccionados[1]:
+                    pass
+                else:
+                    if len(self.seleccionados) == 2:
+                        if self.verifica_seleccionados():
+                            print("iguales")
+                        else:
+                            print("diferentes")
+                            for i in range(len(self.tablero.get_respuesta())):
+                                print("x")
+                                for j in range(len(self.tablero.get_respuesta()[0])):
+                                    if self.tablero.get_respuesta()[i][j] in self.seleccionados and self.tablero.esta_revelado(i, j):
+                                        self.tablero.alternar_boton(fila, columna)
+                        self.seleccionados = []
 
-                if len(self.seleccionados) == 2:
-                    if self.seleccionados[0] == self.seleccionados[1]:
-                        print("iguales")
-                    else:
-                        print("diferentes")
-                        for i in range(len(self.tablero.get_respuesta())):
-                            for j in range(len(self.tablero.get_respuesta()[0])):
-                                if (self.tablero.get_respuesta()[i][j] in self.seleccionados and 
-                                        not self.tablero.esta_activo(i, j)):
-                                    self.tablero.alternar_boton(fila, columna)
-                    self.seleccionados = []
-                
-        return True
+    def verifica_seleccionados(self):
+        if self.seleccionados[0] == self.seleccionados[1]:
+            return True
+        else:
+            return False
+        
 
     def dibujar(self):
         self.pantalla.fill(self.BLANCO)
@@ -80,9 +90,8 @@ class Ventana:
         pygame.display.flip()
 
     def ejecutar(self):
-        corriendo = True
-        while corriendo:
-            corriendo = self.manejar_eventos()
+        while self.corriendo:
+            self.manejar_eventos()
             self.dibujar()
             self.clock.tick(60)
         pygame.quit()
