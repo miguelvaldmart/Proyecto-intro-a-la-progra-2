@@ -17,19 +17,21 @@ class Tablero:
     def __init__(self, filas, columnas):
         self.filas = filas
         self.columnas = columnas
-        self.botones = []  # Aquí se guardará la matriz
+        self.botones = []  #Matriz para saber si el boton fue presionado o no, para cambiar su color
         self.respuesta = self.crea_juego(filas,columnas)
-        print(self.respuesta)
-        for fila in range(filas):
+        self.revelado = [[False for _ in range(columnas)] for _ in range(filas)] #Crea un matriz de Falses del tamaño del tablero (6x6) donde cada false representa un cuadrado
+        print(self.respuesta)                                                    #Esta matriz es para saber si el numero dek cuadrado esta siendo mostrado en pantalla o no
+        for fila in range(filas): #Aqui se crea la matriz de self.botones
             fila_actual = []  # Lista para esta fila
             for columna in range(columnas):
                 nuevo_boton = Boton(fila, columna)
                 fila_actual.append(nuevo_boton)
-            self.botones.append(fila_actual)
+            self.botones.append(fila_actual) 
         
     def alternar_boton(self, fila, columna):
         if 0 <= fila < self.filas and 0 <= columna < self.columnas:
             self.botones[fila][columna].alternar()
+            self.revelado[fila][columna] = not self.revelado[fila][columna]
 
     def esta_activo(self, fila, columna):
         return self.botones[fila][columna].esta_activo()
@@ -40,9 +42,9 @@ class Tablero:
         identificador2 = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
         turno = 1
         respuesta = []
-        for fila in range(filas):
+        for _ in range(filas):
             fila_actual = []
-            for columna in range(columnas):
+            for _ in range(columnas):
                 if turno == 1:
                     valor = randint(0,len(identificador1)-1)
                     fila_actual.append(identificador1[valor])
@@ -56,6 +58,9 @@ class Tablero:
             respuesta.append(fila_actual)
         return respuesta
     
-    #Esta funcion da la variable que contiene la matriz con las respuestas
+    #Esta funcion da la variable que contiene la matriz con las respuestas(valor del cuadrado)
     def get_respuesta(self):
         return self.respuesta
+    
+    def esta_revelado(self, fila, columna): #retorna True si el numero esta siendo mostrado en pantalla y False en caso contrario
+        return self.revelado[fila][columna]
