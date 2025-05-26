@@ -27,6 +27,7 @@ class Tablero:
                 nuevo_boton = Boton(fila, columna)
                 fila_actual.append(nuevo_boton)
             self.botones.append(fila_actual) 
+        self.descubiertos = [[False for _ in range(columnas)] for _ in range(filas)]
         
     def alternar_boton(self, fila, columna):
         if 0 <= fila < self.filas and 0 <= columna < self.columnas:
@@ -67,3 +68,10 @@ class Tablero:
 
     def Id_cuadro (self, fila, columna):
         return self.respuesta[fila][columna]
+    
+    def marcar_descubierto(self, fila1, col1, fila2, col2):
+        self.descubiertos[fila1][col1] = True
+        self.descubiertos[fila2][col2] = True
+
+    def esta_descubierto(self, fila, columna):
+        return self.descubiertos[fila][columna]

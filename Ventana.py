@@ -49,27 +49,46 @@ class Ventana:
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 self.corriendo = False
-            elif evento.type == pygame.MOUSEBUTTONDOWN:
+            elif evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
                 x, y = evento.pos
                 fila = y // self.TAM_CASILLA
                 columna = x // self.TAM_CASILLA
-                self.tablero.alternar_boton(fila, columna)
 
-                if self.tablero.esta_activo(fila, columna):
-                    self.seleccionados.append(self.tablero.Id_cuadro(fila, columna))
-                    self.cordenadas_seleccionados.append((fila,columna))
-                if len(self.cordenadas_seleccionados) == 2 and self.cordenadas_seleccionados[0] == self.cordenadas_seleccionados[1]:
-                    pass
-                else:
-                    if len(self.seleccionados) == 2:
-                        if self.verifica_seleccionados():
-                            print("iguales")
-                        else:
-                            print("diferentes")
-                            self.tablero.alternar_boton(self.cordenadas_seleccionados[0][0],self.cordenadas_seleccionados[0][1])
-                            self.tablero.alternar_boton(self.cordenadas_seleccionados[1][0],self.cordenadas_seleccionados[1][1])
-                        self.cordenadas_seleccionados = []
-                        self.seleccionados = []
+                # Verificamos si ya fue descubierta permanentemente
+                if self.tablero.esta_descubierto(fila, columna):
+                    print("Casilla ya encontrada. No se puede volver a tocar.")
+                    return
+
+                # Verificamos si ya fue seleccionada en este turno
+                if (fila, columna) in self.cordenadas_seleccionados:
+                    print("Casilla ya seleccionada, escoge otra.")
+                    return
+
+                # Activar la casilla
+                self.tablero.alternar_boton(fila, columna)
+                valor = self.tablero.Id_cuadro(fila, columna)
+                self.seleccionados.append(valor)
+                self.cordenadas_seleccionados.append((fila, columna))
+
+                # Comparar si hay dos seleccionadas
+                if len(self.seleccionados) == 2:
+                    f1, c1 = self.cordenadas_seleccionados[0]
+                    f2, c2 = self.cordenadas_seleccionados[1]
+
+                    if self.seleccionados[0] == self.seleccionados[1]:
+                        print("iguales")
+                        self.tablero.marcar_descubierto(f1, c1, f2, c2)
+                    else:
+                        print("diferentes")
+                        self.dibujar()
+                        pygame.display.flip()
+                        pygame.time.delay(1000)
+                        self.tablero.alternar_boton(f1, c1)
+                        self.tablero.alternar_boton(f2, c2)
+
+                    # Limpiar listas al final
+                    self.seleccionados = []
+                    self.cordenadas_seleccionados = []
 
     def verifica_seleccionados(self):
         if self.seleccionados[0] == self.seleccionados[1]:
@@ -80,11 +99,25 @@ class Ventana:
 
     def dibujar(self):
         self.pantalla.fill(self.BLANCO)
+        fuente = pygame.font.SysFont(None, 36)  # Fuente por defecto, tamaño 36
+
         for fila in range(self.FILAS):
             for columna in range(self.COLUMNAS):
-                color = self.VERDE if self.tablero.esta_activo(fila, columna) else self.GRIS
-                pygame.draw.rect(self.pantalla, color, self.rectangulos[fila][columna])
-                pygame.draw.rect(self.pantalla, self.AZUL, self.rectangulos[fila][columna], 2)
+                rect = self.rectangulos[fila][columna]
+                activo = self.tablero.esta_activo(fila, columna)
+                color = self.VERDE if activo else self.GRIS
+
+                # Dibujar el rectángulo
+                pygame.draw.rect(self.pantalla, color, rect)
+                pygame.draw.rect(self.pantalla, self.AZUL, rect, 2)
+
+                # Si está activo, mostrar el número
+                if activo:
+                    numero = self.tablero.get_respuesta()[fila][columna]
+                    texto = fuente.render(str(numero), True, (0, 0, 0))  # Negro
+                    texto_rect = texto.get_rect(center=rect.center)
+                    self.pantalla.blit(texto, texto_rect)
+
         pygame.display.flip()
 
     def ejecutar(self):
