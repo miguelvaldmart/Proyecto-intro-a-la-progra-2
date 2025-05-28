@@ -20,11 +20,12 @@ class Ventana:
         self.ROJO = (255, 0, 0)
 
         # Ventana
-        self.pantalla = pygame.display.set_mode((ancho, alto))
+        self.pantalla = pygame.display.set_mode((1400, alto))
         pygame.display.set_caption("Juego de Lógica")
 
         # Lógica
         self.tablero = Tablero(self.FILAS, self.COLUMNAS)
+        self.tablero1 = Tablero(self.FILAS, self.COLUMNAS)
         self.rectangulos = self.crear_rectangulos()
         self.clock = pygame.time.Clock()
         self.seleccionados = []
@@ -99,14 +100,7 @@ class Ventana:
                     # Limpiar listas al final
                     self.seleccionados = []
                     self.cordenadas_seleccionados = []
-
-    def verifica_seleccionados(self):
-        if self.seleccionados[0] == self.seleccionados[1]:
-            return True
-        else:
-            return False
         
-
     def dibujar(self):
         self.pantalla.fill(self.BLANCO)
         fuente = pygame.font.SysFont(None, 36)  # Fuente por defecto, tamaño 36
