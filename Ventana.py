@@ -20,13 +20,14 @@ class Ventana:
         self.ROJO = (255, 0, 0)
 
         # Ventana
-        self.pantalla = pygame.display.set_mode((1400, alto))
+        self.pantalla = pygame.display.set_mode((1300, 800))
         pygame.display.set_caption("Juego de Lógica")
 
         # Lógica
         self.tablero = Tablero(self.FILAS, self.COLUMNAS)
         self.tablero1 = Tablero(self.FILAS, self.COLUMNAS)
-        self.rectangulos = self.crear_rectangulos()
+        self.rectangulos = self.crear_rectangulos(0)
+        self.rectangulos1 = self.crear_rectangulos(7)
         self.clock = pygame.time.Clock()
         self.seleccionados = []
         self.cordenadas_seleccionados = []
@@ -41,13 +42,13 @@ class Ventana:
         self.mensaje = texto
         self.tiempo_mensaje = pygame.time.get_ticks()
 
-    def crear_rectangulos(self):
+    def crear_rectangulos(self, offset_columna):
         rectangulos = []
         for fila in range(self.FILAS):
             fila_rect = []
             for columna in range(self.COLUMNAS):
                 rect = pygame.Rect(
-                    columna * self.TAM_CASILLA,
+                    (columna + offset_columna) * self.TAM_CASILLA,
                     fila * self.TAM_CASILLA,
                     self.TAM_CASILLA,
                     self.TAM_CASILLA
@@ -91,7 +92,7 @@ class Ventana:
                         self.tablero.marcar_descubierto(f1, c1, f2, c2)
                     else:
                         print("diferentes")
-                        self.dibujar()
+                        self.dibujar_juego_memoria()
                         pygame.display.flip()
                         pygame.time.delay(1000)
                         self.tablero.alternar_boton(f1, c1)
@@ -100,8 +101,61 @@ class Ventana:
                     # Limpiar listas al final
                     self.seleccionados = []
                     self.cordenadas_seleccionados = []
-        
-    def dibujar(self):
+
+    #Dibuja dos matrices
+    def dibujar_juego_memoria(self):
+        self.pantalla.fill(self.BLANCO)
+        fuente = pygame.font.SysFont(None, 36)  # Fuente por defecto, tamaño 36
+
+        # Dibujar primera matriz
+        for fila in range(self.FILAS):
+            for columna in range(self.COLUMNAS):
+                rect = self.rectangulos[fila][columna]
+                activo = self.tablero.esta_activo(fila, columna)
+                color = self.VERDE if activo else self.GRIS
+
+                pygame.draw.rect(self.pantalla, color, rect)
+                pygame.draw.rect(self.pantalla, self.AZUL, rect, 2)
+
+                if activo:
+                    numero = self.tablero.get_respuesta()[fila][columna]
+                    texto = fuente.render(str(numero), True, (0, 0, 0))
+                    texto_rect = texto.get_rect(center=rect.center)
+                    self.pantalla.blit(texto, texto_rect)
+
+        # Dibujar segunda matriz
+        for fila in range(self.FILAS):
+            for columna in range(self.COLUMNAS):
+                rect = self.rectangulos1[fila][columna]
+                activo = self.tablero.esta_activo(fila, columna)
+                color = self.VERDE if activo else self.GRIS
+
+                pygame.draw.rect(self.pantalla, color, rect)
+                pygame.draw.rect(self.pantalla, self.AZUL, rect, 2)
+
+                if activo:
+                    numero = self.tablero.get_respuesta()[fila][columna]
+                    texto = fuente.render(str(numero), True, (0, 0, 0))
+                    texto_rect = texto.get_rect(center=rect.center)
+                    self.pantalla.blit(texto, texto_rect)
+
+        # Mostrar mensaje si existe
+        if self.mensaje:
+            tiempo_actual = pygame.time.get_ticks()
+            if tiempo_actual - self.tiempo_mensaje < 1500:
+                rect_mensaje = pygame.Rect(100, 20, 400, 50)
+                pygame.draw.rect(self.pantalla, self.BLANCO, rect_mensaje)
+                pygame.draw.rect(self.pantalla, self.ROJO, rect_mensaje, 2)
+
+                texto_render = self.fuente_mensaje.render(self.mensaje, True, (0, 0, 0))
+                texto_rect = texto_render.get_rect(center=rect_mensaje.center)
+                self.pantalla.blit(texto_render, texto_rect)
+            else:
+                self.mensaje = ""
+
+        pygame.display.flip()
+
+    def dibujar_juego_secuencia(self):
         self.pantalla.fill(self.BLANCO)
         fuente = pygame.font.SysFont(None, 36)  # Fuente por defecto, tamaño 36
 
@@ -139,10 +193,11 @@ class Ventana:
                         self.mensaje = ""  # Ocultar mensaje
         pygame.display.flip()
 
+
     def ejecutar(self):
         while self.corriendo:
             self.manejar_eventos()
-            self.dibujar()
+            self.dibujar_juego_memoria()
             self.clock.tick(60)
         pygame.quit()
         sys.exit()
