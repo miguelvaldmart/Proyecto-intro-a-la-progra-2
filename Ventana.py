@@ -17,6 +17,7 @@ class Ventana:
         self.GRIS = (180, 180, 180)
         self.VERDE = (0, 200, 0)
         self.AZUL = (50, 50, 255)
+        self.ROJO = (255, 0, 0)
 
         # Ventana
         self.pantalla = pygame.display.set_mode((ancho, alto))
@@ -29,6 +30,15 @@ class Ventana:
         self.seleccionados = []
         self.cordenadas_seleccionados = []
         self.corriendo = True
+
+        #Mensajes en pantalla
+        self.mensaje = ""
+        self.tiempo_mensaje = 0
+        self.fuente_mensaje = pygame.font.SysFont(None, 28)
+
+    def mostrar_mensaje(self, texto):
+        self.mensaje = texto
+        self.tiempo_mensaje = pygame.time.get_ticks()
 
     def crear_rectangulos(self):
         rectangulos = []
@@ -56,12 +66,12 @@ class Ventana:
 
                 # Verificamos si ya fue descubierta permanentemente
                 if self.tablero.esta_descubierto(fila, columna):
-                    print("Casilla ya encontrada. No se puede volver a tocar.")
+                    self.mostrar_mensaje("Casilla ya encontrada, no se puede tocar.")
                     return
 
                 # Verificamos si ya fue seleccionada en este turno
                 if (fila, columna) in self.cordenadas_seleccionados:
-                    print("Casilla ya seleccionada, escoge otra.")
+                    self.mostrar_mensaje("Casilla ya seleccionada, escoge otra.")
                     return
 
                 # Activar la casilla
@@ -117,7 +127,22 @@ class Ventana:
                     texto = fuente.render(str(numero), True, (0, 0, 0))  # Negro
                     texto_rect = texto.get_rect(center=rect.center)
                     self.pantalla.blit(texto, texto_rect)
+                
+                if self.mensaje:
+                    tiempo_actual = pygame.time.get_ticks()
+                    if tiempo_actual - self.tiempo_mensaje < 1500:  # Mostrar por 1 segundo
 
+                        # Fondo blanco con borde azul
+                        rect_mensaje = pygame.Rect(100, 20, 400, 50)
+                        pygame.draw.rect(self.pantalla, self.BLANCO, rect_mensaje)
+                        pygame.draw.rect(self.pantalla, self.ROJO, rect_mensaje, 2)
+
+                        # Renderizar texto y centrarlo dentro de la caja
+                        texto_render = self.fuente_mensaje.render(self.mensaje, True, (0, 0, 0))
+                        texto_rect = texto_render.get_rect(center=rect_mensaje.center)
+                        self.pantalla.blit(texto_render, texto_rect)
+                    else:
+                        self.mensaje = ""  # Ocultar mensaje
         pygame.display.flip()
 
     def ejecutar(self):
