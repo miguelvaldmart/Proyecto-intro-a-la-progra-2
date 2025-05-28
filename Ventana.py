@@ -57,7 +57,7 @@ class Ventana:
             rectangulos.append(fila_rect)
         return rectangulos
 
-    def manejar_eventos(self):
+    def Juego_memoria(self):
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 self.corriendo = False
@@ -67,7 +67,7 @@ class Ventana:
                 columna = x // self.TAM_CASILLA
 
                 # Verificamos si ya fue descubierta permanentemente
-                if self.tablero.esta_descubierto(fila, columna):
+                if self.tablero.esta_descubierto(fila, columna) or self.tablero1.esta_descubierto(fila, columna):
                     self.mostrar_mensaje("Casilla ya encontrada, no se puede tocar.")
                     return
 
@@ -77,8 +77,12 @@ class Ventana:
                     return
 
                 # Activar la casilla
-                self.tablero.alternar_boton(fila, columna)
-                valor = self.tablero.Id_cuadro(fila, columna)
+                if columna<= 6:
+                    self.tablero.alternar_boton(fila, columna)
+                    valor = self.tablero.Id_cuadro(fila, columna)
+                else:
+                    self.tablero1.alternar_boton(fila, columna)
+                    valor = self.tablero1.Id_cuadro(fila, columna)
                 self.seleccionados.append(valor)
                 self.cordenadas_seleccionados.append((fila, columna))
 
@@ -127,14 +131,14 @@ class Ventana:
         for fila in range(self.FILAS):
             for columna in range(self.COLUMNAS):
                 rect = self.rectangulos1[fila][columna]
-                activo = self.tablero.esta_activo(fila, columna)
+                activo = self.tablero1.esta_activo(fila, columna)
                 color = self.VERDE if activo else self.GRIS
 
                 pygame.draw.rect(self.pantalla, color, rect)
                 pygame.draw.rect(self.pantalla, self.AZUL, rect, 2)
 
                 if activo:
-                    numero = self.tablero.get_respuesta()[fila][columna]
+                    numero = self.tablero1.get_respuesta()[fila][columna]
                     texto = fuente.render(str(numero), True, (0, 0, 0))
                     texto_rect = texto.get_rect(center=rect.center)
                     self.pantalla.blit(texto, texto_rect)
@@ -196,7 +200,7 @@ class Ventana:
 
     def ejecutar(self):
         while self.corriendo:
-            self.manejar_eventos()
+            self.Juego_memoria()
             self.dibujar_juego_memoria()
             self.clock.tick(60)
         pygame.quit()
