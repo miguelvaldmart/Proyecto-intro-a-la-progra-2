@@ -19,4 +19,3 @@ class jugador:
     #Esta funcion da el puntaje del jugador
     def get_puntaje(self):
         return self.puntaje
-    
