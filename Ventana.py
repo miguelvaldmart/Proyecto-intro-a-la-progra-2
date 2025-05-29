@@ -70,17 +70,18 @@ class Ventana:
             elif evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
                 x, y = evento.pos
                 
+                #Verifica en cual de las dos matrices se dio el click
                 if x < 600 and y < 600:
                     fila = y // self.TAM_CASILLA
                     columna = x // self.TAM_CASILLA
-                    self.verifica_casillas(fila,columna,x,y,self.tablero)
+                    self.verifica_casillas(fila,columna,self.tablero)
                 elif x > 700 and y < 600:
                     fila = y // self.TAM_CASILLA
                     columna = x // self.TAM_CASILLA - 7
-                    self.verifica_casillas(fila,columna,x,y,self.tablero1)
+                    self.verifica_casillas(fila,columna,self.tablero1)
                     
-
-    def verifica_casillas(self,fila,columna,x,y,tablero):
+    #Esta funcion activa y desactiva las casillas del juego de memoria y verifica si son iguales o diferentes
+    def verifica_casillas(self,fila,columna,tablero):
         # Verificamos si ya fue descubierta permanentemente
         if tablero.esta_descubierto(fila,columna):
             self.mostrar_mensaje("Casilla ya encontrada, no se puede tocar.")
