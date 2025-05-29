@@ -1,14 +1,16 @@
 from random import randint
 class Boton:
-    #esta clase se encarga de darle un valor de False a cada boton y de cambiar su valor dependiende si ha sido tocado o no
+    #Esta clase se encarga de darle un valor de False a cada boton y de cambiar su valor dependiende si ha sido tocado o no
     def __init__(self, fila, columna):
         self.fila = fila
         self.columna = columna
         self.activo = False  # Estado lógico del botón
 
+    #Alterna el estado del boton
     def alternar(self):
         self.activo = not self.activo
 
+    #Retorna si el boton esta activo o no
     def esta_activo(self):
         return self.activo
 
@@ -28,12 +30,14 @@ class Tablero:
                 fila_actual.append(nuevo_boton)
             self.botones.append(fila_actual) 
         self.descubiertos = [[False for _ in range(columnas)] for _ in range(filas)]
-        
+    
+    #Alterna el estado del boton
     def alternar_boton(self, fila, columna):
         if 0 <= fila < self.filas and 0 <= columna < self.columnas:
             self.botones[fila][columna].alternar()
             self.revelado[fila][columna] = not self.revelado[fila][columna]
 
+    #Retorna si el boton esta activo o no
     def esta_activo(self, fila, columna):
         return self.botones[fila][columna].esta_activo()
     
@@ -63,15 +67,19 @@ class Tablero:
     def get_respuesta(self):
         return self.respuesta
     
-    def esta_revelado(self, fila, columna): #retorna True si el numero esta siendo mostrado en pantalla y False en caso contrario
+    #Retorna True si el numero esta siendo mostrado en pantalla y False en caso contrario
+    def esta_revelado(self, fila, columna): 
         return self.revelado[fila][columna]
 
+    #Retorna el valor del cuadro especificado por su fila y su columna
     def Id_cuadro (self, fila, columna):
         return self.respuesta[fila][columna]
     
+    #Marca de manera permanente dos casillas en el juego
     def marcar_descubierto(self, fila1, col1, fila2, col2):
         self.descubiertos[fila1][col1] = True
         self.descubiertos[fila2][col2] = True
 
+    #Retorna si el cuadro esta descubierto o no
     def esta_descubierto(self, fila, columna):
         return self.descubiertos[fila][columna]
