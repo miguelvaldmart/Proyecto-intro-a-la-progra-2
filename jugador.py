@@ -1,12 +1,13 @@
-class jugador:
+class Jugador:
     def __init__(self):
 
         self.turno = False
         self.puntaje = 0
+        
 
     #Esta funcion alterna el turno entre los jugadores
     def set_turno(self):
-        self.turno = not self.turno
+        self.turno =not self.turno
 
     #Esta funcion da cual es el turno actual
     def get_turno(self):
@@ -19,3 +20,4 @@ class jugador:
     #Esta funcion da el puntaje del jugador
     def get_puntaje(self):
         return self.puntaje
+    

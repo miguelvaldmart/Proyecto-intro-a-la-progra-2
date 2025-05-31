@@ -1,6 +1,7 @@
 import pygame
 import sys
 from Logica import Tablero
+from jugador import Jugador
 
 class Ventana:
     def __init__(self, ancho, alto, filas, columnas):
@@ -30,9 +31,23 @@ class Ventana:
         self.rectangulos = self.crear_rectangulos(0)
         self.rectangulos1 = self.crear_rectangulos(7)
         self.clock = pygame.time.Clock()
-        self.seleccionados = []
-        self.cordenadas_seleccionados = []
+        
+        
+        # Jugador 1
+        self.seleccionados_j1 = []
+        self.coordenadas_j1 = []
+
+
+        # Jugador 2
+        self.seleccionados_j2 = []
+        self.coordenadas_j2 = []
+
+        self.contador_turno = 0
+
+        self.jugadores = Jugador()
+
         self.corriendo = True
+        
 
         #Mensajes en pantalla
         self.mensaje = ""
@@ -71,54 +86,66 @@ class Ventana:
                 x, y = evento.pos
                 
                 #Verifica en cual de las dos matrices se dio el click
+                turno_actual = self.jugadores.get_turno() 
                 if x < 600 and y < 600:
-                    fila = y // self.TAM_CASILLA
-                    columna = x // self.TAM_CASILLA
-                    self.verifica_casillas(fila,columna,self.tablero)
+                    if not turno_actual:  # Si el turno es False, significa que va el jugador uno
+                        fila = y // self.TAM_CASILLA
+                        columna = x // self.TAM_CASILLA           #Se pasa el tablero correspondiente a cada jugador
+                        self.verifica_casillas(fila, columna, self.tablero, jugador=1)
+                    else:
+                        self.mostrar_mensaje("Turno de Jugador 2. No toques la izquierda.") # en caso de que el jugador 2, precione dentro de las coordenadas de la matriz 1, salta este mensaje
+
                 elif x > 700 and y < 600:
-                    fila = y // self.TAM_CASILLA
-                    columna = x // self.TAM_CASILLA - 7
-                    self.verifica_casillas(fila,columna,self.tablero1)
+                    if turno_actual:  # Solo Jugador 2 puede tocar esta área
+                        fila = y // self.TAM_CASILLA
+                        columna = x // self.TAM_CASILLA - 7
+                        self.verifica_casillas(fila, columna, self.tablero1, jugador=2)
+                    else:
+                        self.mostrar_mensaje("Turno de Jugador 1. No toques la derecha.")
                     
     #Esta funcion activa y desactiva las casillas del juego de memoria y verifica si son iguales o diferentes
-    def verifica_casillas(self,fila,columna,tablero):
-        # Verificamos si ya fue descubierta permanentemente
-        if tablero.esta_descubierto(fila,columna):
-            self.mostrar_mensaje("Casilla ya encontrada, no se puede tocar.")
-            return
+    def verifica_casillas(self, fila, columna, tablero, jugador):
+        # Seleccionar listas según el jugador
+        if jugador == 1: 
+            lista_seleccionados = self.seleccionados_j1  # Cada jugador tiene sus listas de casillas seleccionadas y sus cordenadas
+            lista_coordenadas = self.coordenadas_j1      #Y dependiendo del turno que a esta funcion sea pasado, accede a una lista u otra
+        else:
+            lista_seleccionados = self.seleccionados_j2
+            lista_coordenadas = self.coordenadas_j2
 
-        # Verificamos si ya fue seleccionada en este turno
-        if (fila, columna) in self.cordenadas_seleccionados:
+        #Verificar si la casilla ya fue seleccionada o descubierta
+        if tablero.esta_activo(fila, columna) or tablero.esta_descubierto(fila, columna):
             self.mostrar_mensaje("Casilla ya seleccionada, escoge otra.")
             return
-        
-        # Activar la casilla
+
+        # ✅ Activar casilla y guardar el valor
         tablero.alternar_boton(fila, columna)
         valor = tablero.Id_cuadro(fila, columna)
+        lista_seleccionados.append(valor)
+        lista_coordenadas.append((fila, columna))
 
-        self.seleccionados.append(valor)
-        self.cordenadas_seleccionados.append((fila, columna))
+        # 🧪 Comparar si hay dos seleccionadas
+        if len(lista_seleccionados) == 2:
+            f1, c1 = lista_coordenadas[0]
+            f2, c2 = lista_coordenadas[1]
 
-        # Comparar si hay dos seleccionadas
-        if len(self.seleccionados) == 2:
-            f1, c1 = self.cordenadas_seleccionados[0]
-            f2, c2 = self.cordenadas_seleccionados[1]
-
-            #Verifica si los dos cuadro seleccionados son iguales o no
-            if self.seleccionados[0] == self.seleccionados[1]:
-                print("iguales")
+            if lista_seleccionados[0] == lista_seleccionados[1]:
+                self.mostrar_mensaje("¡Pareja encontrada!")
                 tablero.marcar_descubierto(f1, c1, f2, c2)
             else:
-                print("diferentes")
+                self.mostrar_mensaje("No son iguales")
                 self.dibujar_juego_memoria()
                 pygame.display.flip()
                 pygame.time.delay(1000)
                 tablero.alternar_boton(f1, c1)
                 tablero.alternar_boton(f2, c2)
 
-            # Limpiar listas al final
-            self.seleccionados = []
-            self.cordenadas_seleccionados = []
+            # Limpiar listas
+            lista_seleccionados.clear()
+            lista_coordenadas.clear()
+
+            # Cambiar de turno inmediatamente (1 intento por turno)
+            self.jugadores.set_turno()
 
     #Dibuja dos matrices del juego de memoria
     def dibujar_juego_memoria(self):
