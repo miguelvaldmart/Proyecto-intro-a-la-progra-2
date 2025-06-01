@@ -163,7 +163,7 @@ class Ventana:
         if self.mensaje:
             tiempo_actual = pygame.time.get_ticks()
             if tiempo_actual - self.tiempo_mensaje < 1500:
-                rect_mensaje = pygame.Rect(100, 20, 400, 50)
+                rect_mensaje = pygame.Rect(320, 20, 620, 50)
                 pygame.draw.rect(self.pantalla, self.BLANCO, rect_mensaje)
                 pygame.draw.rect(self.pantalla, self.ROJO, rect_mensaje, 2)
 
