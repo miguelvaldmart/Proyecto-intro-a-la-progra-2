@@ -152,8 +152,6 @@ class Ventana:
             self.lista_seleccionados.clear()
             self.lista_coordenadas.clear()
 
-            # Cambiar de turno inmediatamente (1 intento por turno)
-
     #Dibuja dos matrices del juego de memoria
     def dibujar_juego_memoria(self):
         self.pantalla.fill(self.BLANCO)
