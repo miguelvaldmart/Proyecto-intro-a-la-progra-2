@@ -20,6 +20,7 @@ class Ventana:
         self.VERDE = (0, 200, 0)
         self.AZUL = (50, 50, 255)
         self.ROJO = (255, 0, 0)
+        self.negro = (0,0,0)
 
         # Ventana
         self.pantalla = pygame.display.set_mode((1300, 800))
@@ -31,7 +32,8 @@ class Ventana:
         self.rectangulos = self.crear_rectangulos(0)
         self.rectangulos1 = self.crear_rectangulos(7)
         self.clock = pygame.time.Clock()
-        
+        self.lista_coordenadas = []
+        self.lista_seleccionados = []
         
         # Jugador 1
         self.seleccionados_j1 = []
@@ -53,6 +55,11 @@ class Ventana:
         self.mensaje = ""
         self.tiempo_mensaje = 0
         self.fuente_mensaje = pygame.font.SysFont(None, 28)
+
+        #Tiempo
+        self.inicio_tiempo = 0
+        self.tiempo_limite = 0
+        self.tiempo_transcurrido = 0
 
     #Muestra los mensajes en la panatlla
     def mostrar_mensaje(self, texto):
@@ -84,8 +91,7 @@ class Ventana:
             #Verifica si se dio un click izquierdo
             elif evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
                 x, y = evento.pos
-                
-                #Verifica en cual de las dos matrices se dio el click
+                #Verifica en cual de las dos matrices se dio el click y se verifica de quien es el turno
                 turno_actual = self.jugadores.get_turno() 
                 if x < 600 and y < 600:
                     if not turno_actual:  # Si el turno es False, significa que va el jugador uno
@@ -102,50 +108,51 @@ class Ventana:
                         self.verifica_casillas(fila, columna, self.tablero1, jugador=2)
                     else:
                         self.mostrar_mensaje("Turno de Jugador 1. No toques la derecha.")
-                    
+
     #Esta funcion activa y desactiva las casillas del juego de memoria y verifica si son iguales o diferentes
     def verifica_casillas(self, fila, columna, tablero, jugador):
         # Seleccionar listas según el jugador
         if jugador == 1: 
-            lista_seleccionados = self.seleccionados_j1  # Cada jugador tiene sus listas de casillas seleccionadas y sus cordenadas
-            lista_coordenadas = self.coordenadas_j1      #Y dependiendo del turno que a esta funcion sea pasado, accede a una lista u otra
+            self.lista_seleccionados = self.seleccionados_j1  # Cada jugador tiene sus listas de casillas seleccionadas y sus cordenadas
+            self.lista_coordenadas = self.coordenadas_j1      #Y dependiendo del turno que a esta funcion sea pasado, accede a una lista u otra
         else:
-            lista_seleccionados = self.seleccionados_j2
-            lista_coordenadas = self.coordenadas_j2
+            self.lista_seleccionados = self.seleccionados_j2
+            self.lista_coordenadas = self.coordenadas_j2
 
         #Verificar si la casilla ya fue seleccionada o descubierta
         if tablero.esta_activo(fila, columna) or tablero.esta_descubierto(fila, columna):
             self.mostrar_mensaje("Casilla ya seleccionada, escoge otra.")
             return
 
-        # ✅ Activar casilla y guardar el valor
+        #Activar casilla y guardar el valor
         tablero.alternar_boton(fila, columna)
         valor = tablero.Id_cuadro(fila, columna)
-        lista_seleccionados.append(valor)
-        lista_coordenadas.append((fila, columna))
+        self.lista_seleccionados.append(valor)
+        self.lista_coordenadas.append((fila, columna))
+        #Comparar si hay dos seleccionadas
+        if len(self.lista_seleccionados) == 2:
+            f1, c1 = self.lista_coordenadas[0]
+            f2, c2 = self.lista_coordenadas[1]
 
-        # 🧪 Comparar si hay dos seleccionadas
-        if len(lista_seleccionados) == 2:
-            f1, c1 = lista_coordenadas[0]
-            f2, c2 = lista_coordenadas[1]
-
-            if lista_seleccionados[0] == lista_seleccionados[1]:
+            if self.lista_seleccionados[0] == self.lista_seleccionados[1]:
+                self.tiempo_limite += 7000
                 self.mostrar_mensaje("¡Pareja encontrada!")
                 tablero.marcar_descubierto(f1, c1, f2, c2)
             else:
+                self.tiempo_limite += (11 - self.tiempo_transcurrido) * 1000
                 self.mostrar_mensaje("No son iguales")
+                self.inicio_tiempo = 0
                 self.dibujar_juego_memoria()
                 pygame.display.flip()
                 pygame.time.delay(1000)
                 tablero.alternar_boton(f1, c1)
                 tablero.alternar_boton(f2, c2)
-
+                self.jugadores.set_turno()
             # Limpiar listas
-            lista_seleccionados.clear()
-            lista_coordenadas.clear()
+            self.lista_seleccionados.clear()
+            self.lista_coordenadas.clear()
 
             # Cambiar de turno inmediatamente (1 intento por turno)
-            self.jugadores.set_turno()
 
     #Dibuja dos matrices del juego de memoria
     def dibujar_juego_memoria(self):
@@ -200,8 +207,6 @@ class Ventana:
             else:
                 self.mensaje = ""
 
-        pygame.display.flip()
-
     #Dibuja las matrices del juego de secuencias
     def dibujar_juego_secuencia(self):
         self.pantalla.fill(self.BLANCO)
@@ -240,12 +245,39 @@ class Ventana:
                     else:
                         self.mensaje = ""  # Ocultar mensaje
         pygame.display.flip()
+    
+    #Esta funcion coloca un temporizador en la parte inferior de la pantalla
+    def temporizador_en_pantalla(self):
+        if self.tiempo_transcurrido > 0:
+            self.inicio_tiempo = pygame.time.get_ticks()
+        else:
+            self.mostrar_mensaje("Cambio de turno")
+            self.tiempo_limite += 10000
+        self.tiempo_transcurrido = (self.tiempo_limite-self.inicio_tiempo) // 1000
+        tiempo_texto = self.fuente_mensaje.render(str(self.tiempo_transcurrido),True,self.negro)
+        self.pantalla.blit(tiempo_texto,(600,700))
 
     #Ejecuta el juego de memoria
     def ejecutar(self):
         while self.corriendo:
+            if self.tiempo_transcurrido == 0:
+                self.jugadores.set_turno()
+                print(self.lista_coordenadas,self.coordenadas_j1,self.coordenadas_j2,self.lista_seleccionados)
+                if self.coordenadas_j1 != [] and self.tiempo_transcurrido == 0:
+                    self.tablero.alternar_boton(self.lista_coordenadas[0][0],self.lista_coordenadas[0][1])
+                    self.lista_coordenadas.clear()
+                    self.coordenadas_j1.clear()
+                    self.lista_seleccionados.clear()
+                if self.coordenadas_j2 != [] and self.tiempo_transcurrido == 0:
+                    self.tablero1.alternar_boton(self.lista_coordenadas[0][0],self.lista_coordenadas[0][1])
+                    self.lista_coordenadas.clear()
+                    self.coordenadas_j2.clear()
+                    self.lista_seleccionados.clear()
+                print(self.lista_coordenadas,self.coordenadas_j1,self.coordenadas_j2,self.lista_seleccionados)
             self.Juego_memoria()
             self.dibujar_juego_memoria()
+            self.temporizador_en_pantalla()
+            pygame.display.flip()
             self.clock.tick(60)
         pygame.quit()
         sys.exit()
