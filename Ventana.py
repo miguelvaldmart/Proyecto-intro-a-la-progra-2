@@ -159,7 +159,7 @@ class Ventana:
                 activo = self.tablero.esta_activo(fila, columna)
                 color = self.VERDE if activo else self.GRIS
 
-                pygame.draw.rect(self.pantalla, color, rect)
+                pygame.draw.rect(self.pantalla, color, rect, 0, 4)
                 pygame.draw.rect(self.pantalla, self.AZUL, rect, 2)
 
                 #Revisa si algun cuadro en la primera matriz esta activo

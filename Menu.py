@@ -1,6 +1,7 @@
 import pygame
 import sys
 from Ventana import Ventana
+from JuegoMemoria import MemoryGame
 
 pygame.init()
 
@@ -40,7 +41,8 @@ while corriendo:
                 juego = Ventana(600, 600, 6, 6)
                 juego.ejecutar()
             elif boton2.collidepoint(evento.pos):
-                print("Siguiente Juego que Vamos que hay que Crear")
+                Memoria = MemoryGame(600, 600, 6, 6)
+                Memoria.ejecutar()
 
 
     # Botón 1 - Juego 2 contra 2
@@ -67,3 +69,5 @@ while corriendo:
 
 pygame.quit()
 sys.exit()
+
+
