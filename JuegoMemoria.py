@@ -19,7 +19,7 @@ class MemoryGame:
         self.VERDE_CLARO = (50, 200, 50)
 
         # Pygame setup
-        self.ventana = pygame.display.set_mode((800, 800))
+        self.ventana = pygame.display.set_mode((700, 700))
         pygame.display.set_caption("Juego de Memoria")
         self.running = True
         self.fps = 60
@@ -47,10 +47,10 @@ class MemoryGame:
 
         for i in range(self.COLUMNAS):
             for j in range(self.FILAS):
-                x = i * 160 + 35
-                y = j * 130 + 35 # Posiciones de los cuadros, el "+35" es para que haya espacio entre estos
-                ancho = 95
-                alto = 95
+                x = i * 115 + 28
+                y = j * 90 + 20 # Posiciones de los cuadros, el "+35" es para que haya espacio entre estos
+                ancho = 70
+                alto = 70
 
                 rect = pygame.Rect(x, y, ancho, alto)
                 self.Lista_Cuadros.append(rect)
@@ -119,8 +119,8 @@ class MemoryGame:
                                 resultado = self.logica.verificar_click(idx)
                                 if resultado == "error":
                                     print("Orden incorrecto")
-                                    self.running = False
-                                    pygame.quit()
+                                    
+                                    
                                 elif resultado == "completo":
                                     pygame.time.delay(1000)
                                     self.nueva_secuencia()
