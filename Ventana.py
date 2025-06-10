@@ -2,7 +2,8 @@ import pygame
 import sys
 from Logica import Tablero
 from jugador import Jugador
-
+from PIL import Image
+import os
 class Ventana:
     def __init__(self, ancho, alto, filas, columnas):
         pygame.init()
@@ -68,6 +69,12 @@ class Ventana:
         self.tiempo_limite = 0
         self.tiempo_transcurrido = 10000
 
+
+
+        #Imagenes
+        self.imagenes = self.carga_imagenes()
+
+
     #Muestra los mensajes en la panatlla
     def mostrar_mensaje(self, texto):
         self.mensaje = texto
@@ -115,8 +122,59 @@ class Ventana:
                         self.verifica_casillas(fila, columna, self.tablero1, jugador=2)
                     else:
                         self.mostrar_mensaje("Turno de Jugador 1. No toques la derecha.")
+                
+            if self.escontrados_j1 == 18:
+                self.victoria("Jugador 1 ha ganado!")
+                return
+            elif self.escontrados_j2 == 18:
+                self.victoria("Jugador 2 ha ganado!")
+                return
 
-    
+    def victoria(self, mensaje):
+        fuente_grande = pygame.font.SysFont(None, 72)
+        fuente_botones = pygame.font.SysFont(None, 36)
+        volver_jugar = pygame.Rect(400, 500, 200, 50)
+        volver_menu = pygame.Rect(700, 500, 200, 50)
+
+        while True:
+            self.pantalla.fill(self.BLANCO)
+
+            # Mensaje de victoria
+            texto = fuente_grande.render(mensaje, True, self.VERDE)
+            texto_rect = texto.get_rect(center=(self.ANCHO + 100, 200))
+            self.pantalla.blit(texto, texto_rect)
+
+            # Botón volver a jugar
+            pygame.draw.rect(self.pantalla, self.AZUL, volver_jugar)
+            texto_volver = fuente_botones.render("Volver a jugar", True, self.BLANCO)
+            rect_volver = texto_volver.get_rect(center=volver_jugar.center)
+            self.pantalla.blit(texto_volver, rect_volver)
+
+            # Botón volver al menú
+            pygame.draw.rect(self.pantalla, self.ROJO, volver_menu)
+            texto_menu = fuente_botones.render("Menú principal", True, self.BLANCO)
+            rect_menu = texto_menu.get_rect(center=volver_menu.center)
+            self.pantalla.blit(texto_menu, rect_menu)
+
+            pygame.display.flip()
+
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif evento.type == pygame.MOUSEBUTTONDOWN:
+                    if volver_jugar.collidepoint(evento.pos):
+                        self.__init__(self.ANCHO, self.ALTO, self.FILAS, self.COLUMNAS)
+                        self.ejecutar()
+                        return
+                    elif volver_menu.collidepoint(evento.pos):
+                        from Menu import MenuPrincipal  # Asegurate que esto exista
+                        menu = MenuPrincipal()
+                        menu.ejecutar()
+                        return
+
+
+
     
     #Esta funcion activa y desactiva las casillas del juego de memoria y verifica si son iguales o diferentes
     def verifica_casillas(self, fila, columna, tablero, jugador):
@@ -172,7 +230,6 @@ class Ventana:
     #Dibuja dos matrices del juego de memoria
     def dibujar_juego_memoria(self):
         self.pantalla.fill(self.BLANCO)
-        fuente = pygame.font.SysFont(None, 36)  # Fuente por defecto, tamaño 36
 
         # Dibujar primera matriz
         for fila in range(self.FILAS):
@@ -186,10 +243,9 @@ class Ventana:
 
                 #Revisa si algun cuadro en la primera matriz esta activo
                 if activo:
-                    numero = self.tablero.get_respuesta()[fila][columna]
-                    texto = fuente.render(str(numero), True, (0, 0, 0))
-                    texto_rect = texto.get_rect(center=rect.center)
-                    self.pantalla.blit(texto, texto_rect)
+                    imagen = self.imagenes[self.tablero.get_respuesta()[fila][columna]]
+                    imagen_rect = imagen.get_rect(center=rect.center)
+                    self.pantalla.blit(imagen, imagen_rect)
 
         # Dibujar segunda matriz
         for fila in range(self.FILAS):
@@ -203,10 +259,9 @@ class Ventana:
 
                 #Revisa si algun cuadro en la segunda matriz esta activo
                 if activo:
-                    numero = self.tablero1.get_respuesta()[fila][columna]
-                    texto = fuente.render(str(numero), True, (0, 0, 0))
-                    texto_rect = texto.get_rect(center=rect.center)
-                    self.pantalla.blit(texto, texto_rect)
+                    imagen = self.imagenes[self.tablero1.get_respuesta()[fila][columna]]
+                    imagen_rect = imagen.get_rect(center=rect.center)
+                    self.pantalla.blit(imagen, imagen_rect)
 
         # Mostrar mensaje si existe
         if self.mensaje:
@@ -311,6 +366,36 @@ class Ventana:
         self.pantalla.blit(parejas_texto,(1010, 660))
 
         
+
+
+
+    def carga_imagenes(self):
+        carpeta_base = os.path.dirname(os.path.abspath(__file__))
+        carpeta_imagenes = os.path.join(carpeta_base, "imagenes_proyecto")
+        lista = []
+        for i in range(18):
+            nombre_archivo = f'im{i}.jpg'
+            ruta = os.path.join(carpeta_imagenes, nombre_archivo)
+
+            # Abrir la imagen con PIL
+            try:
+                img_pil = Image.open(ruta)
+            except FileNotFoundError:
+                print(f'No se encontró la imagen: {ruta}')
+                continue
+
+            # Redimensiona la imagen
+            img_pil = img_pil.resize((90,90))
+
+            # Convertir a formato compatible con pygame
+            modo = img_pil.mode
+            tamaño = img_pil.size
+            datos = img_pil.tobytes()
+
+            imagen_pygame = pygame.image.fromstring(datos, tamaño, modo)
+
+            lista.append(imagen_pygame)
+        return lista
 
 
     #Ejecuta el juego de memoria

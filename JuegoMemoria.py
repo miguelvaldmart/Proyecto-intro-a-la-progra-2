@@ -17,6 +17,9 @@ class MemoryGame:
         self.NEGRO = (0, 0, 0)
         self.VERDE = (19, 105, 16)
         self.VERDE_CLARO = (50, 200, 50)
+        self.amarillodorado = (255, 221, 2) 
+        self.AZUL = (50, 50, 255)
+        self.ROJO = (255, 0, 0)
 
         # Pygame setup
         self.ventana = pygame.display.set_mode((700, 700))
@@ -31,11 +34,16 @@ class MemoryGame:
         # Lógica del juego
         self.logica = LogicaMemoria()
 
+        self.fuente_mensaje2 = pygame.font.SysFont(None, 35)
+
         # Secuencia y estados
         self.mostrando = True
         self.index_mostrando = 0
         self.tiempo_mostrado = 0
         self.tiempo_espera = 700
+
+        self.tiempototal = 10
+        self.tiempocuadros = 2
 
         self.mostrar_espera = False
         self.tiempo_pausa = 500  # Tiempo entre cuadros (milisegundos)
@@ -113,21 +121,76 @@ class MemoryGame:
                     if event.type == pygame.QUIT:
                         self.running = False
                         pygame.quit()
+                        return
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         for idx, rect in enumerate(self.Lista_Cuadros):
                             if rect.collidepoint(event.pos):
                                 resultado = self.logica.verificar_click(idx)
                                 if resultado == "error":
-                                    print("Orden incorrecto")
+                                    self.Fallo("Orden Incorrecto! :(")
                                     
                                     
                                 elif resultado == "completo":
                                     pygame.time.delay(1000)
                                     self.nueva_secuencia()
+            self.ShowLevel()
 
             pygame.display.flip()
             self.timer.tick(self.fps)
 
+
+    def ShowLevel(self):
+        
+        nivel_mjs = pygame.Rect(50, 600, 145, 35)
+        pygame.draw.rect(self.ventana, self.amarillodorado, nivel_mjs, 5, 10)
+        nivel = self.logica.get_nivel()
+        nivel_texto = self.fuente_mensaje2.render(f"Nivel: {nivel}",True, self.amarillodorado)
+        self.ventana.blit(nivel_texto,(60, 605))
+
+    def Fallo(self, mensaje): # Esta funcion se llama al momento de que el jugador falla en el patron
+        fuente_grande = pygame.font.SysFont(None, 72)
+        fuente_botones = pygame.font.SysFont(None, 36)
+        volver_jugar = pygame.Rect(400, 500, 200, 50)
+        volver_menu = pygame.Rect(100, 500, 200, 50)
+
+        while True: #Se crea un nuevo bucle
+            self.ventana.fill(self.BLANCO) #Con fondo blanco (Todo lo demas se borra)
+
+            # Mensaje de que fallo
+            texto = fuente_grande.render(mensaje, True, self.VERDE)
+            texto_rect = texto.get_rect(center=(350, 200))
+            self.ventana.blit(texto, texto_rect)
+
+            # Botón volver a jugar
+            pygame.draw.rect(self.ventana, self.AZUL, volver_jugar)
+            texto_volver = fuente_botones.render("Volver a jugar", True, self.BLANCO)
+            rect_volver = texto_volver.get_rect(center=volver_jugar.center)
+            self.ventana.blit(texto_volver, rect_volver)
+
+            # Botón volver al menú
+            pygame.draw.rect(self.ventana, self.ROJO, volver_menu)
+            texto_menu = fuente_botones.render("Menú principal", True, self.BLANCO)
+            rect_menu = texto_menu.get_rect(center=volver_menu.center)
+            self.ventana.blit(texto_menu, rect_menu)
+
+            pygame.display.flip()
+
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    pygame.quit()
+                elif evento.type == pygame.MOUSEBUTTONDOWN:
+                    if volver_jugar.collidepoint(evento.pos): # Se dectecta la posicion de los clicks
+                        self.__init__(self.ANCHO, self.ALTO, self.FILAS, self.COLUMNAS)
+                        
+                        return
+                    elif volver_menu.collidepoint(evento.pos):
+                        from Menu import MenuPrincipal  # Asegurate que esto exista
+                        menu = MenuPrincipal()
+                        menu.ejecutar()
+                        return
+        
+         
+       
     def ejecutar(self):
         self.iniciarVentana()
 
