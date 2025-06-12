@@ -107,8 +107,10 @@ class MemoryGame:
         self.tiempo_mostrado = pygame.time.get_ticks()
 
     def iniciarVentana(self):
+        self.Lista_Cuadros.clear()
         self.dibujar_fondo()
         self.nueva_secuencia()
+        self.logica.reiniciar()
 
         while self.running:
             self.ventana.fill(self.GRIS)
@@ -129,7 +131,7 @@ class MemoryGame:
                             
                             from Menu import MenuPrincipal
                             menu = MenuPrincipal()
-                            menu.Ejecutar()
+                            menu.ejecutar()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         for idx, rect in enumerate(self.Lista_Cuadros):
                             if rect.collidepoint(event.pos):
@@ -192,15 +194,15 @@ class MemoryGame:
                     pygame.quit()
                 elif evento.type == pygame.MOUSEBUTTONDOWN:
                     if volver_jugar.collidepoint(evento.pos): # Se dectecta la posicion de los clicks
-                        import os, sys
-                        os.execl(sys.executable, sys.executable, *sys.argv)
+                        juego = MemoryGame(600, 600, 6, 6)
+                        juego.ejecutar()
                         
                         return
                     elif volver_menu.collidepoint(evento.pos):
-                        from Menu import MenuPrincipal  # Asegurate que esto exista
+                        from Menu import MenuPrincipal
                         menu = MenuPrincipal()
                         menu.ejecutar()
-                        return
+                        
         
          
        

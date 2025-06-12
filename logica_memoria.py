@@ -26,3 +26,6 @@ class LogicaMemoria:
 
     def get_nivel(self):
         return self.nivel
+    
+    def reiniciar(self):
+        self.nivel = 3

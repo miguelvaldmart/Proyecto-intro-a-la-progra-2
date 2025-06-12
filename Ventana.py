@@ -39,7 +39,7 @@ class Ventana:
         # Jugador 1
         self.seleccionados_j1 = []
         self.coordenadas_j1 = []
-        self.intentos_j1 = -1
+        self.intentos_j1 = 0
         self.escontrados_j1 = 0
 
 
@@ -323,20 +323,31 @@ class Ventana:
     
     #Esta funcion coloca un temporizador en la parte inferior de la pantalla
     def temporizador_en_pantalla(self):
-        if self.tiempo_transcurrido > 0:
+    # Solo establecer el inicio si es 0 (nuevo turno)
+        if self.inicio_tiempo == 0:
             self.inicio_tiempo = pygame.time.get_ticks()
-        else:
+
+        # Calcular tiempo transcurrido real
+        tiempo_actual = pygame.time.get_ticks()
+        tiempo_restante = (self.tiempo_limite - (tiempo_actual - self.inicio_tiempo)) // 1000
+        self.tiempo_transcurrido = max(0, tiempo_restante)
+
+        # Si se acabó el tiempo
+        if self.tiempo_transcurrido <= 0:
             if not self.jugadores.get_turno():
                 self.intentos_j1 += 1
             else:
                 self.intentos_j2 += 1
             self.mostrar_mensaje("Cambio de turno")
-            self.tiempo_limite += 10000
-        self.tiempo_transcurrido = (self.tiempo_limite-self.inicio_tiempo) // 1000
-        tiempo_texto1 = self.fuente_mensaje3.render("Tiempo:",True, self.negro)
-        tiempo_texto = self.fuente_mensaje3.render(str(self.tiempo_transcurrido),True, self.negro)
-        self.pantalla.blit(tiempo_texto1,(595,707))
-        self.pantalla.blit(tiempo_texto,(640,750))
+            self.tiempo_limite = 10000  # Reiniciar límite de 10 segundos
+            self.inicio_tiempo = 0      # Esto permite reiniciar el conteo en el siguiente frame
+            return  # Salir para evitar dibujar el texto con tiempo 0
+
+        # Mostrar el texto en pantalla
+        tiempo_texto1 = self.fuente_mensaje3.render("Tiempo:", True, self.negro)
+        tiempo_texto = self.fuente_mensaje3.render(str(self.tiempo_transcurrido), True, self.negro)
+        self.pantalla.blit(tiempo_texto1, (595, 707))
+        self.pantalla.blit(tiempo_texto, (640, 750))
 
 
     def intentosJugador1(self):
@@ -435,6 +446,8 @@ class Ventana:
 
     #Ejecuta el juego de memoria
     def ejecutar(self):
+        self.tiempo_limite = 10000 
+        self.inicio_tiempo = pygame.time.get_ticks()
         while self.corriendo:
             if self.tiempo_transcurrido == 0:
                 self.jugadores.set_turno()
