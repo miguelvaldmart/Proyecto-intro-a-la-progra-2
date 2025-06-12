@@ -46,7 +46,7 @@ class MenuPrincipal:
         self.pantalla.blit(texto_render, texto_render.get_rect(center=rect.center))
 
 
-    def ejecutar(self):
+    def Ejecutar(self):
         corriendo = True
         while corriendo:
             self.pantalla.fill(self.GRIS_OSCURO)

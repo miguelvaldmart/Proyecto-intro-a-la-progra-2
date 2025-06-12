@@ -70,6 +70,11 @@ class Ventana:
         self.tiempo_transcurrido = 10000
 
 
+        #Imagenes
+        self.imagenes = self.carga_imagenes()
+
+
+
 
         #Imagenes
         self.imagenes = self.carga_imagenes()
@@ -366,6 +371,36 @@ class Ventana:
         self.pantalla.blit(parejas_texto,(1010, 660))
 
         
+
+
+
+    def carga_imagenes(self):
+        carpeta_base = os.path.dirname(os.path.abspath(__file__))
+        carpeta_imagenes = os.path.join(carpeta_base, "imagenes_proyecto")
+        lista = []
+        for i in range(18):
+            nombre_archivo = f'im{i}.jpg'
+            ruta = os.path.join(carpeta_imagenes, nombre_archivo)
+
+            # Abrir la imagen con PIL
+            try:
+                img_pil = Image.open(ruta)
+            except FileNotFoundError:
+                print(f'No se encontró la imagen: {ruta}')
+                continue
+
+            # Redimensiona la imagen
+            img_pil = img_pil.resize((90,90))
+
+            # Convertir a formato compatible con pygame
+            modo = img_pil.mode
+            tamaño = img_pil.size
+            datos = img_pil.tobytes()
+
+            imagen_pygame = pygame.image.fromstring(datos, tamaño, modo)
+
+            lista.append(imagen_pygame)
+        return lista
 
 
 

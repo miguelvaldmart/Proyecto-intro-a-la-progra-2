@@ -1,6 +1,7 @@
 import pygame
 from logica_memoria import LogicaMemoria
 
+
 class MemoryGame:
     def __init__(self, ancho, alto, filas, columnas):
         pygame.init()
@@ -122,6 +123,13 @@ class MemoryGame:
                         self.running = False
                         pygame.quit()
                         return
+                    elif event.type == pygame.KEYDOWN:
+                        # Si la tecla presionada es la tecla ESC
+                        if event.key == pygame.K_ESCAPE:
+                            
+                            from Menu import MenuPrincipal
+                            menu = MenuPrincipal()
+                            menu.Ejecutar()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         for idx, rect in enumerate(self.Lista_Cuadros):
                             if rect.collidepoint(event.pos):
@@ -146,6 +154,10 @@ class MemoryGame:
         nivel = self.logica.get_nivel()
         nivel_texto = self.fuente_mensaje2.render(f"Nivel: {nivel}",True, self.amarillodorado)
         self.ventana.blit(nivel_texto,(60, 605))
+        
+        mensaje_esc = self.fuente_mensaje2.render("Press ESC to exit", True, self.amarillodorado)
+        esc_rect = mensaje_esc.get_rect(center=(347, self.ALTO - 30))
+        self.ventana.blit(mensaje_esc, esc_rect)
 
     def Fallo(self, mensaje): # Esta funcion se llama al momento de que el jugador falla en el patron
         fuente_grande = pygame.font.SysFont(None, 72)
@@ -180,7 +192,8 @@ class MemoryGame:
                     pygame.quit()
                 elif evento.type == pygame.MOUSEBUTTONDOWN:
                     if volver_jugar.collidepoint(evento.pos): # Se dectecta la posicion de los clicks
-                        self.__init__(self.ANCHO, self.ALTO, self.FILAS, self.COLUMNAS)
+                        import os, sys
+                        os.execl(sys.executable, sys.executable, *sys.argv)
                         
                         return
                     elif volver_menu.collidepoint(evento.pos):
