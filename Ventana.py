@@ -107,6 +107,14 @@ class Ventana:
             #Verifica si se cierra el juego
             if evento.type == pygame.QUIT:
                 self.corriendo = False
+
+            elif evento.type == pygame.KEYDOWN:
+                        # Si la tecla presionada es la tecla ESC
+                        if evento.key == pygame.K_ESCAPE:
+                            
+                            from Menu import MenuPrincipal
+                            menu = MenuPrincipal()
+                            menu.ejecutar()
             #Verifica si se dio un click izquierdo
             elif evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
                 x, y = evento.pos
@@ -167,6 +175,8 @@ class Ventana:
                 if evento.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                
+                
                 elif evento.type == pygame.MOUSEBUTTONDOWN:
                     if volver_jugar.collidepoint(evento.pos):
                         self.__init__(self.ANCHO, self.ALTO, self.FILAS, self.COLUMNAS)
@@ -214,20 +224,26 @@ class Ventana:
                     self.escontrados_j1 += 1
                 else:
                     self.escontrados_j2 += 1
+            
+            
             else:
                 if not self.jugadores.get_turno():
                     self.intentos_j1 += 1
                 else:
                     self.intentos_j2 += 1
-                self.tiempo_limite += (11 - self.tiempo_transcurrido) * 1000
                 self.mostrar_mensaje("No son iguales")
-                self.inicio_tiempo = 0
                 self.dibujar_juego_memoria()
                 pygame.display.flip()
                 pygame.time.delay(1000)
                 tablero.alternar_boton(f1, c1)
                 tablero.alternar_boton(f2, c2)
+
                 self.jugadores.set_turno()
+
+                # ⏱ Reiniciar tiempo de turno del nuevo jugador
+                self.inicio_tiempo = pygame.time.get_ticks()
+            
+            
             # Limpiar listas
             self.lista_seleccionados.clear()
             self.lista_coordenadas.clear()
@@ -346,8 +362,8 @@ class Ventana:
         # Mostrar el texto en pantalla
         tiempo_texto1 = self.fuente_mensaje3.render("Tiempo:", True, self.negro)
         tiempo_texto = self.fuente_mensaje3.render(str(self.tiempo_transcurrido), True, self.negro)
-        self.pantalla.blit(tiempo_texto1, (595, 707))
-        self.pantalla.blit(tiempo_texto, (640, 750))
+        self.pantalla.blit(tiempo_texto1, (595, 677))
+        self.pantalla.blit(tiempo_texto, (640, 720))
 
 
     def intentosJugador1(self):
@@ -442,6 +458,11 @@ class Ventana:
 
             lista.append(imagen_pygame)
         return lista
+    
+    def textoESC(self):
+        mensaje_esc = self.fuente_mensaje2.render("Press ESC to exit", True, self.negro)
+        esc_rect = mensaje_esc.get_rect(center=(645, 780))
+        self.pantalla.blit(mensaje_esc, esc_rect)
 
 
     #Ejecuta el juego de memoria
@@ -463,11 +484,13 @@ class Ventana:
                     self.coordenadas_j2.clear()
                     self.lista_seleccionados.clear()
                 print(self.lista_coordenadas,self.coordenadas_j1,self.coordenadas_j2,self.lista_seleccionados)
+            
             self.Juego_memoria()
             self.dibujar_juego_memoria()
             self.temporizador_en_pantalla()
             self.intentosJugador1()
             self.intentosJugador2()
+            self.textoESC()
 
             pygame.display.flip()
             self.clock.tick(60)

@@ -9,7 +9,9 @@ import requests
 class MenuPrincipal:
     def __init__(self):
         pygame.init()
-        self.ANCHO, self.ALTO = 600, 400
+        self.ANCHO, self.ALTO = 800, 500
+        self.fondo = pygame.image.load("Imagenes_proyecto/ImagenesFondo/Menu.png")  # Cambia el nombre según tu imagen
+        self.fondo = pygame.transform.scale(self.fondo, (self.ANCHO, self.ALTO))
         self.pantalla = pygame.display.set_mode((self.ANCHO, self.ALTO))
         pygame.display.set_caption("Menú Principal")
         self.clock = pygame.time.Clock()
@@ -29,9 +31,9 @@ class MenuPrincipal:
         self.fuente = pygame.font.SysFont("arial", 32, bold=True)
 
         # Botones
-        self.boton1 = pygame.Rect(200, 100, 220, 60)
-        self.boton2 = pygame.Rect(200, 200, 220, 60)
-        self.boton3 = pygame.Rect(200, 0, 220, 60)
+        self.boton1 = pygame.Rect(285, 175, 220, 60)
+        self.boton2 = pygame.Rect(285, 275, 220, 60)
+        self.boton3 = pygame.Rect(285, 75, 220, 60)
 
     def dibujar_boton(self, rect, texto, color_texto, activo):
         color = self.AZUL_OSCURO if activo else self.AZUL
@@ -49,7 +51,7 @@ class MenuPrincipal:
     def ejecutar(self):
         corriendo = True
         while corriendo:
-            self.pantalla.fill(self.GRIS_OSCURO)
+            self.pantalla.blit(self.fondo, (0, 0))
             mouse_pos = pygame.mouse.get_pos()
 
             for evento in pygame.event.get():
